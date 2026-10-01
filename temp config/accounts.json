@@ -1,0 +1,13 @@
+[
+  {
+    "_id": "bdb65feee65c1d84b20e541a",
+    "enabled": true,
+    "sessionFile": "bdb65feee65c1d84b20e541a.session",
+    "telegramStatus": "AUTHENTICATED",
+    "name": "Jitu_72852",
+    "phone": "918949972852",
+    "canMonitor": true,
+    "canConvert": true,
+    "canBroadcast": true
+  }
+]

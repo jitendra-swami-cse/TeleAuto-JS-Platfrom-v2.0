@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+# Application Storage (Critical: Do not commit Telegram sessions!)
+storage/
+storage/sessions/
+
+# Logs
+logs/
+npm-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db

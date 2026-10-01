@@ -1,0 +1,11 @@
+[
+  {
+    "_id": "acc001",
+    "phoneNumber": "918949972852"    ,
+    "enabled": true,
+    "monitoringEnabled": true,
+    "conversionEnabled": true,
+    "broadcastingEnabled": true,
+    "sessionFile": "acc001.session"
+  }
+]
