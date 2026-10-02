@@ -3,5 +3,6 @@
   "pollInterval": 15,
   "conversionTimeoutSeconds": 300,
   "messageCacheLimit": 1000,
-  "logRetentionDays": 30
+  "logRetentionDays": 30,
+  "converterBotUsername": "@LinkConvertTeraAbot"
 }

@@ -43,10 +43,13 @@ program
         Total ${accounts.length} Connected Accounts: `,
         // TODO: Add a feature to display the connected accounts
       );
-      // At this point the clients are running. Event Router will be attached in Phase 1B.
+      // Start background workers
+      const BatchBuilder = require("../modules/conversion/BatchBuilder");
+      BatchBuilder.start();
 
       const gracefulShutdown = async () => {
         console.log("\n[TeleAuto] Gracefully shutting down...");
+        BatchBuilder.stop();
         await ClientManager.disconnectAll();
         await DatabaseManager.disconnect();
         console.log("[TeleAuto] All clients disconnected. Goodbye!");
