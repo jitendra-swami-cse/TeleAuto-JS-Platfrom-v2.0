@@ -27,7 +27,8 @@ class SourceChannelFilter {
     // Check if the chat ID exists in our source-channels.json
     // Telegram channel IDs often start with -100. If our config has -100, we must match it.
     // A robust way is to check if the string ends with the channelId.
-    return sourceChannels.some(channel => {
+    // Return the actual channel config object if found, otherwise undefined
+    return sourceChannels.find(channel => {
       const configId = channel.telegramChannelId.toString();
       return configId === chatId || configId === `-100${chatId}`;
     });

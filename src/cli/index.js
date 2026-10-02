@@ -1,6 +1,8 @@
 const { Command } = require("commander");
+require("dotenv").config();
 const ConfigManager = require("../core/config/ConfigManager");
 const ClientManager = require("../core/telegram/ClientManager");
+const DatabaseManager = require("../core/database/DatabaseManager");
 
 const program = new Command();
 
@@ -13,6 +15,14 @@ program
     console.log("Starting TeleAuto Platform...");
 
     ConfigManager.loadAll();
+    
+    try {
+      await DatabaseManager.connect();
+    } catch (dbError) {
+      console.error("Failed to start TeleAuto due to database error.");
+      process.exit(1);
+    }
+
     const accounts = ConfigManager.getEnabledAccounts();
 
     if (accounts.length === 0) {
@@ -38,6 +48,7 @@ program
       const gracefulShutdown = async () => {
         console.log("\n[TeleAuto] Gracefully shutting down...");
         await ClientManager.disconnectAll();
+        await DatabaseManager.disconnect();
         console.log("[TeleAuto] All clients disconnected. Goodbye!");
         process.exit(0);
       };

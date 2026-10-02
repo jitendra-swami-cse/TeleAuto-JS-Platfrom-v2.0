@@ -133,7 +133,7 @@ Client B
 Store in:
 
 ```js
-clientRegistry
+clientRegistry;
 ```
 
 Example:

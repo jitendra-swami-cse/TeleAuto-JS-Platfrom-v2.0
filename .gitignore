@@ -15,3 +15,9 @@ npm-debug.log*
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Temp files
+temp config/
+
+# Less Useful Files
+_Less Useful Files/

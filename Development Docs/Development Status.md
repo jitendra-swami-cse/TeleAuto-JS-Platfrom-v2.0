@@ -61,4 +61,37 @@ Awesome! Phase 1B (The Listener Runtime) is now fully integrated. Here is what h
 
 Try it out, and let me know when you're ready to tackle **Phase 1C: Monitoring Pipeline (Link Extraction & MongoDB)**!
 
-Viewed SourceChannelFilter.js:1-37
+<!-- ------------------------------------ -->
+
+I have carefully analyzed all the provided markdown documents, respecting the strict priority order you established (`01 PRD` < `02 Helping Prompts` < `03 Latest Resolutions` < `04 Useful Point` < `05 Architecture` < `06 Dev Plan` < `Startup Flow` < `07 Comprehensive Plan` < `Development Status`), as well as the existing `.js` and `.json` files in the `src` and config folders.
+
+### Analysis Summary
+
+The current codebase correctly implements **Phase 1A and 1B**:
+
+- **Client & Session Management**: Follows the strict "1 Account = 1 Session = 1 Client" rule.
+- **Event Router & Single Listener**: Exactly one `NewMessage` listener is registered, pushing events to the `EventRouter`, filtering source channels, and hitting `MonitoringModule.processMessage()`.
+- **Config Separation**: Secrets and operational settings are correctly loaded via `ConfigManager` from JSON and `.env`.
+
+### Preparing for Phase 1C (Monitoring Pipeline)
+
+In Phase 1C, we need to implement Link Extraction, URL Normalization, Duplicate Detection, and MongoDB persistence for `Message` and `Link` entities, along with enforcing the `messageCacheLimit`.
+
+Based on the priority order of the documents, I have resolved any contradictions internally (for example, utilizing MongoDB `ObjectId` as primary keys instead of Telegram IDs, ensuring Media IDs use the message timestamp, and avoiding separate code paths for history vs. live messages).
+
+Before I write the code for Phase 1C, I have a few suggestions/questions to ensure we are completely aligned:
+
+Ques 1. **Domain Aliases (Canonical Providers):**
+For cross-domain duplicate detection (e.g., `terabox.com`, `1024tera.com` -> `terabox`), we need to store these alias rules. Would you prefer a new config file (e.g., `src/config/providers.json`) to manage these cleanly, or should I just add a `providers` array inside the existing `config.json`?
+Ans - Yes there should be a new config file to manage these cleanly.
+Ques 2. **Message FIFO Cache:**
+We need to enforce the `messageCacheLimit` (default 1000). Since MongoDB has native support for **Capped Collections** (which automatically maintain insertion order and drop the oldest documents when a limit is reached without needing manual cleanup jobs), I suggest we use a Capped Collection for the `messages` collection. Does that sound good to you?
+Ans - Yes do this.
+Ques 3. **Media ID Generation:**
+According to the `07 Comprehensive Development Plan`, the actual downloading of media files happens in Phase 4. For Phase 1C, should I go ahead and generate the proper `mediaId` (e.g., `20261001-143015-001` based on the Telegram message timestamp, or `"noMedia"`) and save it to the DB so the data is fully prepared for Phase 4?
+Ans - Yes
+Ques 4. **MongoDB Connection Setup:**
+I will need to create a `DatabaseManager.js` and inject it into the startup sequence in `cli/index.js` (right after `ConfigManager.loadAll()`) so that the database is ready before the Telegram clients connect.
+Ans - Yes do this.
+
+<!-- ----------------------------------------------------------------- -->

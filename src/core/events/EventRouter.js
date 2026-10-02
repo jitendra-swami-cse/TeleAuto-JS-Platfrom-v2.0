@@ -8,8 +8,9 @@ class EventRouter {
       const message = event.message;
 
       // Check if this message came from a configured source channel
-      if (SourceChannelFilter.isSourceChannel(message)) {
-        MonitoringModule.processMessage(message, accountId);
+      const sourceChannel = SourceChannelFilter.isSourceChannel(message);
+      if (sourceChannel) {
+        MonitoringModule.processMessage(message, accountId, sourceChannel);
       }
       
       // Future: Converter Bot Handler routing will go here

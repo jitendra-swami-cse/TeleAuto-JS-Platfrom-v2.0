@@ -8,11 +8,13 @@ class ConfigManager {
     this.configPath = path.join(this.configDir, 'config.json');
     this.sourceChannelsPath = path.join(this.configDir, 'source-channels.json');
     this.destinationChannelsPath = path.join(this.configDir, 'destination-channels.json');
+    this.providersPath = path.join(this.configDir, 'providers.json');
     
     this.accounts = [];
     this.appConfig = {};
     this.sourceChannels = [];
     this.destinationChannels = [];
+    this.providers = [];
   }
 
   loadAll() {
@@ -20,6 +22,7 @@ class ConfigManager {
     this.accounts = this.loadJson(this.accountsPath, []);
     this.sourceChannels = this.loadJson(this.sourceChannelsPath, []);
     this.destinationChannels = this.loadJson(this.destinationChannelsPath, []);
+    this.providers = this.loadJson(this.providersPath, []);
     console.log('[ConfigManager] Configuration loaded.');
   }
 
