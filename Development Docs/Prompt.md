@@ -30,3 +30,40 @@ Here is a summary of what was successfully built and integrated into the project
   3. Caches the original `Message` to MongoDB.
   4. For every extracted link, it runs normalization and attempts to create a `Link` record.
   5. Intercepts MongoDB's `11000 Duplicate Key Error` natively to cleanly flag and ignore duplicates!
+
+<!-- -------------------------------------------- -->
+
+suppose 10 messages came in source channel and all 10 messages have media attached what will happen 10 media download processes triggerd simitualteanously and run at same time if yes than this is the one which actaully creates error as 10 downolading processes runing at same time can be the reason of media download fail, tell me am i right or media download in any other way.
+
+```text
+What i suggest is (i am talking about related to media only remaining things like links are must not be affected by this) -
+when message recevied
+1 if message don't have link then ignore this message.
+2 if message don't have media then store property of link "mediaId" = "noMedia"
+3 if message have media then
+
+  3.1 Store property of link "mediaId" = "pending" and after saving this
+
+  3.2 Check ClientManager.isMediaDownloader
+    3.2.1 if ClientManager.isMediaDownloader="running" then ok
+    3.2.2 if ClientManager.isMediaDownloader="stopped" then
+            - Set ClientManager.isMediaDownloader="running"
+            - Run ClientManager.mediaDownloader()
+
+
+4 As app started ClientManager a property on this isMediaDownloader must be defined on it. And a method to start and a method to stop - a polling mechanism named "MediaDownloader" must also have to be on Client Manager.
+
+5. MediaDownloader Polling -
+  5.1 After each 15 seconds (Configured) it checks for links have property mediaId="pending"
+  5.2 links (having media="pending") got from db are sorted so the oldest link can be selected for first to download and set mediaId="processing" to this link.
+  5.3 when a link chosen for download first find the right account using "sourceChannelId" stored on the link.
+  5.4 when right account is found get client of this account from client manager
+  5.5 Using right client start download for the media.
+      - if media download successful then set mediaId= generated media id
+      - if media download failed then set mediaId= error - ErrorMessage
+  5.7 Again polls for links with mediaId="pending"
+      - if there are links then repeat the flow
+      - if there are no links with mediaId="pending" then first stop MediaDownloader Polling Mechanism and set ClientManager.isMediaDownloader="stopped"
+
+  Next time when ever link or links with media appear the MediaDownloader polling will be started again and runs until all media either downloaded or failed.
+```

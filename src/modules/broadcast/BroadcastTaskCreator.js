@@ -72,7 +72,11 @@ class BroadcastTaskCreator {
 
       if (tasksToCreate.length > 0) {
         await BroadcastTask.insertMany(tasksToCreate);
+        
+        // Track which channel titles tasks were created for
+        const channelTitles = destinationChannels.map(d => d.title || d.telegramChannelId);
         link.broadcastStatus = 'TASKS_CREATED';
+        link.broadcastingTaskCreatedForChannels = channelTitles;
         await link.save();
         console.log(`[BroadcastTaskCreator] Created ${tasksToCreate.length} tasks for Link ${link._id}.`);
       }

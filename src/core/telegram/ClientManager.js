@@ -6,6 +6,7 @@ require('dotenv').config();
 class ClientManager {
   constructor() {
     this.clients = new Map(); // accountId -> client instance
+    this.isMediaDownloader = 'stopped'; // 'running' | 'stopped'
   }
 
   async connectAccount(account) {
@@ -52,6 +53,20 @@ class ClientManager {
 
   getClient(accountId) {
     return this.clients.get(accountId);
+  }
+
+  startMediaDownloader() {
+    if (this.isMediaDownloader === 'running') return;
+    this.isMediaDownloader = 'running';
+    // Lazy-require to avoid circular dependency
+    const MediaDownloader = require('../../modules/media/MediaDownloader');
+    MediaDownloader.start();
+  }
+
+  stopMediaDownloader() {
+    this.isMediaDownloader = 'stopped';
+    const MediaDownloader = require('../../modules/media/MediaDownloader');
+    MediaDownloader.stop();
   }
   
   async disconnectAll() {
