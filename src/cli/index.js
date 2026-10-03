@@ -15,7 +15,7 @@ program
     console.log("Starting TeleAuto Platform...");
 
     ConfigManager.loadAll();
-    
+
     try {
       await DatabaseManager.connect();
     } catch (dbError) {
@@ -33,7 +33,7 @@ program
     try {
       for (const account of accounts) {
         const client = await ClientManager.connectAccount(account);
-        
+
         // Attach Top-Level Listeners for the Client
         const ListenerManager = require("../core/telegram/ListenerManager");
         ListenerManager.attachListeners(client, account);
@@ -47,9 +47,17 @@ program
       const BatchBuilder = require("../modules/conversion/BatchBuilder");
       BatchBuilder.start();
 
+      const BroadcastTaskCreator = require("../modules/broadcast/BroadcastTaskCreator");
+      BroadcastTaskCreator.start();
+
+      const BroadcastWorker = require("../modules/broadcast/BroadcastWorker");
+      BroadcastWorker.start();
+
       const gracefulShutdown = async () => {
         console.log("\n[TeleAuto] Gracefully shutting down...");
         BatchBuilder.stop();
+        BroadcastTaskCreator.stop();
+        BroadcastWorker.stop();
         await ClientManager.disconnectAll();
         await DatabaseManager.disconnect();
         console.log("[TeleAuto] All clients disconnected. Goodbye!");
