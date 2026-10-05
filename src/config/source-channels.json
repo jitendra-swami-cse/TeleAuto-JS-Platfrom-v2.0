@@ -6,6 +6,8 @@
     "ownerAccountId": "acc001",
     "historySyncEnabled": true,
     "historySyncLimit": 200,
-    "mediaDownloadEnabled": true
+    "mediaDownloadEnabled": true,
+    "channelCategoryOrNiche": "not given",
+    "broadcastTo": []
   }
 ]

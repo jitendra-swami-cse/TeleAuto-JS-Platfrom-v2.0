@@ -57,8 +57,31 @@ class BroadcastTaskCreator {
     for (const link of pendingLinks) {
       console.log(`[BroadcastTaskCreator] Creating separate broadcast tasks for Link ${link._id}...`);
       
+      const allSourceChannels = ConfigManager.sourceChannels || [];
+      const sourceChannelConfig = allSourceChannels.find(
+        sc => sc.telegramChannelId === link.sourceChannelId
+      );
+
+      let allowedDestinationChannels = destinationChannels;
+      if (
+        sourceChannelConfig &&
+        sourceChannelConfig.broadcastTo &&
+        sourceChannelConfig.broadcastTo.length > 0
+      ) {
+        allowedDestinationChannels = destinationChannels.filter(dest =>
+          sourceChannelConfig.broadcastTo.includes(dest.telegramChannelId)
+        );
+      }
+
+      if (allowedDestinationChannels.length === 0) {
+         console.log(`[BroadcastTaskCreator] No allowed destination channels for Link ${link._id} (source ${link.sourceChannelId}). Marking broadcast as COMPLETED.`);
+         link.broadcastStatus = 'COMPLETED';
+         await link.save();
+         continue;
+      }
+
       const tasksToCreate = [];
-      for (const dest of destinationChannels) {
+      for (const dest of allowedDestinationChannels) {
         // Assign the correct owner account, or fallback to the first enabled broadcast account
         const accountId = dest.ownerAccountId || broadcastAccounts[0]._id;
         
@@ -74,7 +97,7 @@ class BroadcastTaskCreator {
         await BroadcastTask.insertMany(tasksToCreate);
         
         // Track which channel titles tasks were created for
-        const channelTitles = destinationChannels.map(d => d.title || d.telegramChannelId);
+        const channelTitles = allowedDestinationChannels.map(d => d.title || d.telegramChannelId);
         link.broadcastStatus = 'TASKS_CREATED';
         link.broadcastingTaskCreatedForChannels = channelTitles;
         await link.save();
