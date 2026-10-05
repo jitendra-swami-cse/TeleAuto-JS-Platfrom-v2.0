@@ -43,6 +43,11 @@ program
         Total ${accounts.length} Connected Accounts: `,
         // TODO: Add a feature to display the connected accounts
       );
+
+      // Phase 6: Sync Historical Messages (Blocking until complete)
+      const HistorySyncModule = require("../modules/history/HistorySyncModule");
+      await HistorySyncModule.syncAll();
+
       // Start background workers
       const BatchBuilder = require("../modules/conversion/BatchBuilder");
       BatchBuilder.start();

@@ -4,5 +4,7 @@
   "conversionTimeoutSeconds": 300,
   "messageCacheLimit": 1000,
   "logRetentionDays": 30,
-  "converterBotUsername": "@LinkConvertTeraAbot"
+  "converterBotUsername": "@LinkConvertTeraAbot",
+  "historySyncEnabled": true,
+  "historySyncDefaultLimit": 100
 }

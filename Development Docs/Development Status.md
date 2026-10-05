@@ -95,3 +95,18 @@ I will need to create a `DatabaseManager.js` and inject it into the startup sequ
 Ans - Yes do this.
 
 <!-- ----------------------------------------------------------------- -->
+
+### Phase 2: The Conversion System (Completed)
+- **BatchBuilder:** Scans for PENDING links, packs them into batches, and enforces the 10 link batch size limit and the 1 active batch lock.
+- **ConverterSender:** Formats batches using the template and sends them to the conversion bot.
+- **ConverterListener:** Listens for bot replies, parses the formatted text to extract converted URLs, and updates the Link and Batch records in MongoDB.
+
+### Phase 3: The Broadcasting System (Completed)
+- **BroadcastTaskCreator:** Watches for COMPLETED links and creates individual BroadcastTask documents for each enabled destination channel. Tracks progress in arrays.
+- **BroadcastWorker:** Sequentially processes tasks, broadcasting links to destination channels. Uses push and pull for atomic updates to channel tracking arrays.
+
+### Phase 4: Media System (Completed)
+- **MediaDownloader:** A sequential, self-stopping poller that downloads media one at a time to prevent rate limits.
+- **MediaCleanupWorker:** A background worker running every 5 minutes that deletes local media files FIFO style, only if thresholds (>1000 files or >1GB) are exceeded.
+
+<!-- ----------------------------------------------------------------- -->
