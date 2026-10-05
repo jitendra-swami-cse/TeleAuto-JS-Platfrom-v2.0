@@ -1,4 +1,4 @@
-Edited package.json
+﻿Edited package.json
 
 I noticed your `npm start` command just showed the help menu and exited. That happened because our CLI tool requires the `start` argument (i.e. `node src/index.js start`). I just quickly updated your `package.json` so that simply typing `npm start` will automatically run it correctly!
 
@@ -96,17 +96,46 @@ Ans - Yes do this.
 
 <!-- ----------------------------------------------------------------- -->
 
+
 ### Phase 2: The Conversion System (Completed)
-- **BatchBuilder:** Scans for PENDING links, packs them into batches, and enforces the 10 link batch size limit and the 1 active batch lock.
-- **ConverterSender:** Formats batches using the template and sends them to the conversion bot.
-- **ConverterListener:** Listens for bot replies, parses the formatted text to extract converted URLs, and updates the Link and Batch records in MongoDB.
+
+- **BatchBuilder:** Scans for `PENDING` links, packs them into batches of `batchSize` (default 10), and enforces the '1 active batch' lock so no two batches run simultaneously.
+- **ConverterSender:** Formats batches using the `1. - LINK_ID - URL |` template and sends them to the configured converter bot.
+- **ConverterListener:** Listens for bot replies via the EventRouter, parses the `LINK_ID` and converted URL pairs, and updates `Link.conversionStatus` to `COMPLETED` or `FAILED`.
 
 ### Phase 3: The Broadcasting System (Completed)
-- **BroadcastTaskCreator:** Watches for COMPLETED links and creates individual BroadcastTask documents for each enabled destination channel. Tracks progress in arrays.
-- **BroadcastWorker:** Sequentially processes tasks, broadcasting links to destination channels. Uses push and pull for atomic updates to channel tracking arrays.
+
+- **BroadcastTaskCreator:** Watches for `conversionStatus=COMPLETED` links and creates individual `BroadcastTask` documents (one per destination channel). Atomically tracks progress using `broadcastingTaskCreatedForChannels` array on the Link.
+- **BroadcastWorker:** Processes `QUEUED` tasks one by one. On success, atomically pushes channel title to `broadcastedOnChannels` and pulls from `broadcastingTaskCreatedForChannels`. On failure, pushes to `broadcastingFailedOnChannels`. Archives link when all tasks are done.
+- **Broadcast Tracking Arrays on Link:** Three arrays (`broadcastingTaskCreatedForChannels`, `broadcastedOnChannels`, `broadcastingFailedOnChannels`) provide real-time visibility into broadcasting progress per channel.
 
 ### Phase 4: Media System (Completed)
-- **MediaDownloader:** A sequential, self-stopping poller that downloads media one at a time to prevent rate limits.
-- **MediaCleanupWorker:** A background worker running every 5 minutes that deletes local media files FIFO style, only if thresholds (>1000 files or >1GB) are exceeded.
+
+- **Link.mediaId State Encoding:** Removed the separate `mediaStatus` field. `mediaId` itself encodes all states: `noMedia`, `pending`, `processing`, `error - msg`, `download disabled globally`, `download disabled for channel 'X'`, or a timestamp ID (`YYYYMMDD-HHMMSS-001`) on success.
+- **MediaDownloader (Sequential Poller):** Rewrote from concurrent fire-and-forget to a sequential self-stopping poller managed via `ClientManager`. Downloads one message group at a time to avoid Telegram rate limit errors. Groups all links from the same `telegramMessageId` so media is downloaded only once per message. Self-stops when no pending links remain, and auto-restarts when new media arrives.
+- **ClientManager Controls:** Added `isMediaDownloader` flag, `startMediaDownloader()`, and `stopMediaDownloader()` methods. `MonitoringModule` kicks the downloader when new pending media is detected.
+- **MediaCleanupWorker:** Runs every 5 minutes. Deletes media files FIFO (oldest first) only if: (1) file count exceeds 1000 OR (2) total size exceeds 1 GB. Only targets fully archived link media. Never touches active/in-progress files.
+- **Media Download Toggle:** Added `mediaDownloadEnabled` to both `config.json` (global toggle) and `source-channels.json` (per-channel toggle). When disabled, `mediaId` is set to a descriptive string (not generic `noMedia`) for audit clarity.
+
+### Phase 5: Web Dashboard (Deferred)
+
+- Interactive CLI phase was skipped. A Simple Web Dashboard (Express.js backend + HTML/CSS/JS frontend) is planned for a future phase after core features are stable.
+
+### Phase 6: History Sync (Completed)
+
+- **HistorySyncModule:** Runs on every startup after Telegram clients connect but before any background workers start. Loops over all source channels strictly one by one.
+- **Stop Condition:** Fetches messages from Telegram in chunks of 100 (newest to oldest). Stops when the fetched message ID falls <= the highest ID already in the database for that channel.
+- **Chronological Order:** Collected messages are reversed before being passed to `MonitoringModule.processMessage()` to ensure oldest-first insertion order.
+- **Global Toggle:** `historySyncEnabled` in `config.json` is the master switch. If false, module exits immediately and workers start right away.
+- **Per-Channel Toggle:** Each channel in `source-channels.json` can independently set `historySyncEnabled: false` to be skipped.
+- **Per-Channel Limit:** `historySyncLimit` on each channel overrides the global `historySyncDefaultLimit` from `config.json`.
+- **Code Reuse:** All historical messages flow through the exact same `MonitoringModule.processMessage()` function as live messages — zero duplicate logic.
+
+### Documentation (Completed)
+
+- **Platform Architecture & Developer Reference:** Comprehensive developer guide with the full directory map, 8-step startup sequence, complete 6-stage message lifecycle with arrow-flow diagrams and 'Files to Edit' tables per stage, Link document field reference with all status enums, config key reference, 7 common how-to scenarios, and 6 architectural rules that must never be violated.
+- **Advanced Broadcasting Features Design:** Detailed design specification for two upcoming features:
+  - **Feature 1 - Channel Linking:** `broadcastTo` array on source channels restricts which destination channels receive links from that source. Config-only change, zero new files.
+  - **Feature 2 - Broadcasting Rules:** `broadcastRules` object on destination channels supports `maxPerHour`, `maxPerDay`, `minGapMinutes`, `duringTime`, `afterTime`, `beforeTime`, and `timezone` for fine-grained broadcast scheduling.
 
 <!-- ----------------------------------------------------------------- -->
