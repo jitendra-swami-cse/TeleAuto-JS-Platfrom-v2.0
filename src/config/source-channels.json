@@ -5,6 +5,7 @@
     "title": "For_ac_01",
     "ownerAccountId": "acc001",
     "historySyncEnabled": true,
-    "historySyncLimit": 200
+    "historySyncLimit": 200,
+    "mediaDownloadEnabled": true
   }
 ]

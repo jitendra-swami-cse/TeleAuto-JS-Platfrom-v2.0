@@ -3,6 +3,7 @@ const URLNormalizer = require("./URLNormalizer");
 const Message = require("../../models/Message");
 const Link = require("../../models/Link");
 const ClientManager = require("../../core/telegram/ClientManager");
+const ConfigManager = require("../../core/config/ConfigManager");
 
 class MonitoringModule {
   async processMessage(message, accountId, sourceChannel) {
@@ -27,10 +28,18 @@ class MonitoringModule {
     }
 
     // Determine mediaId initial value
-    // If media present: "pending" (queued for sequential download)
-    // If no media:      "noMedia"
-    const hasMedia = !!(message.media && message.date);
-    const mediaId = hasMedia ? "pending" : "noMedia";
+    const hasMediaAttachment = !!(message.media && message.date);
+    let mediaId = "noMedia";
+
+    if (hasMediaAttachment) {
+      if (ConfigManager.appConfig.mediaDownloadEnabled === false) {
+        mediaId = "download disabled globally";
+      } else if (sourceChannel && sourceChannel.mediaDownloadEnabled === false) {
+        mediaId = `download disabled for channel '${channelName || sourceChannel.telegramChannelId}'`;
+      } else {
+        mediaId = "pending";
+      }
+    }
 
     // Standardize sourceChannelId prefixing
     let sourceChannelId = "";
@@ -100,8 +109,8 @@ class MonitoringModule {
       }
     }
 
-    // If media present, ensure the sequential MediaDownloader is running
-    if (hasMedia) {
+    // If media present AND set to pending, ensure the sequential MediaDownloader is running
+    if (mediaId === "pending") {
       if (ClientManager.isMediaDownloader === "stopped") {
         console.log(
           `[MonitoringModule] 🎬 Starting MediaDownloader polling for pending media...`,

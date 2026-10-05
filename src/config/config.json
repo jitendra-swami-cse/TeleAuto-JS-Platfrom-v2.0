@@ -5,6 +5,7 @@
   "messageCacheLimit": 1000,
   "logRetentionDays": 30,
   "converterBotUsername": "@LinkConvertTeraAbot",
-  "historySyncEnabled": true,
-  "historySyncDefaultLimit": 100
+  "historySyncEnabled": false,
+  "historySyncDefaultLimit": 100,
+  "mediaDownloadEnabled": false
 }

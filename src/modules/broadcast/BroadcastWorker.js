@@ -82,8 +82,8 @@ class BroadcastWorker {
         let sentMessage;
 
         // Check mediaId to determine how to send
-        if (!link.mediaId || link.mediaId === "noMedia") {
-          // No media — send text only
+        if (!link.mediaId || link.mediaId === "noMedia" || link.mediaId.startsWith("download disabled")) {
+          // No media or disabled — send text only
           sentMessage = await client.sendMessage(task.destinationChannelId, {
             message: messageText,
           });
