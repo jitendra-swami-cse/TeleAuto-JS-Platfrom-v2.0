@@ -122,3 +122,10 @@ Let me know which phase you would like to start building next, or if you have an
 Everything is committed and your documentation is fully up to date.
 
 Whenever you're ready to start building the next phase (either the **Interactive CLI** or the **History Sync**), just let me know how you'd like to proceed!
+
+<!-- ------------------------------------- -->
+
+<!-- Now i want you to suggest me what else i can add as feature related to broadcasting, like
+example 1 - adding channel linking from source channels to destination channels means each source channel have the configuration that link from this channel should be broadasted which channels example sourceChannel_3 have config that the links extracted from this channel should be broadcasted to this destinationChannel_1 and destinationChannel_4 and destinationChannel_7 so teleauto will broadcast a link extracted and converted to these 3 channels only.
+example 2 - Like a broadcasting rules setter module by which broadcasting worker of teleAuto can decide when to broadcast a message on particular channel this must be happens after broadcasting task creation, like each source channel have some configured limitations like maxPerHour, maxPerDay, duringTime: 4pm to 6pm only, afterTime: after 4pm only.
+create a deteailed doument of these suggestions. -->
