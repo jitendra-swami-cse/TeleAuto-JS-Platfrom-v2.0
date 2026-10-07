@@ -61,11 +61,15 @@ program
       const MediaCleanupWorker = require("../modules/media/MediaCleanupWorker");
       MediaCleanupWorker.start();
 
+      const DeletionWorker = require("../modules/broadcast/DeletionWorker");
+      DeletionWorker.start();
+
       const gracefulShutdown = async () => {
         console.log("\n[TeleAuto] Gracefully shutting down...");
         BatchBuilder.stop();
         BroadcastTaskCreator.stop();
         BroadcastWorker.stop();
+        DeletionWorker.stop();
         MediaCleanupWorker.stop();
         await ClientManager.disconnectAll();
         await DatabaseManager.disconnect();

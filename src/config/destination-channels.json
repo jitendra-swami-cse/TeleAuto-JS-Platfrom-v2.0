@@ -4,27 +4,31 @@
     "telegramChannelUsername": "",
     "title": "Dest_5",
     "ownerAccountId": "acc001",
-    "channelCategoryOrNiche": "not given"
+    "channelCategoryOrNiche": "not given",
+    "autoDeletionAfterHours": 0.05
   },
   {
     "telegramChannelId": "-1002131370428",
     "telegramChannelUsername": "",
     "title": "Dest_6",
     "ownerAccountId": "acc001",
-    "channelCategoryOrNiche": "not given"
+    "channelCategoryOrNiche": "not given",
+    "autoDeletionAfterHours": 0.05
   },
   {
     "telegramChannelId": "-1002052812178",
     "telegramChannelUsername": "",
     "title": "Dest_1",
     "ownerAccountId": "acc001",
-    "channelCategoryOrNiche": "not given"
+    "channelCategoryOrNiche": "not given",
+    "autoDeletionAfterHours": 0.05
   },
   {
     "telegramChannelId": "-1002109211628",
     "telegramChannelUsername": "",
     "title": "Dest_3",
     "ownerAccountId": "acc001",
-    "channelCategoryOrNiche": "not given"
+    "channelCategoryOrNiche": "not given",
+    "autoDeletionAfterHours": false
   }
 ]

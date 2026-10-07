@@ -7,5 +7,6 @@
   "converterBotUsername": "@LinkConvertTeraAbot",
   "historySyncEnabled": false,
   "historySyncDefaultLimit": 100,
-  "mediaDownloadEnabled": false
+  "mediaDownloadEnabled": false,
+  "autoDeletionCheckIntervalMinutes": 60
 }

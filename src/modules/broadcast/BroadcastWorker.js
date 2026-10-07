@@ -3,6 +3,7 @@ const BroadcastTask = require("../../models/BroadcastTask");
 const ConfigManager = require("../../core/config/ConfigManager");
 const ClientManager = require("../../core/telegram/ClientManager");
 const MediaDownloader = require("../media/MediaDownloader");
+const DeletionTask = require("../../models/DeletionTask");
 
 class BroadcastWorker {
   constructor() {
@@ -135,6 +136,27 @@ class BroadcastWorker {
           task.telegramMessageId = sentMessage.id;
         }
         await task.save();
+
+        // Feature: AutoDeletion (Create deletion task immediately)
+        if (
+          sentMessage && 
+          sentMessage.id && 
+          destConfig && 
+          destConfig.autoDeletionAfterHours && 
+          typeof destConfig.autoDeletionAfterHours === "number"
+        ) {
+          const deleteAfter = new Date(Date.now() + destConfig.autoDeletionAfterHours * 60 * 60 * 1000);
+          await DeletionTask.create({
+            linkId: task.linkId,
+            broadcastTaskId: task._id,
+            destinationChannelId: task.destinationChannelId,
+            broadcasterAccountId: task.broadcasterAccountId,
+            messageIdToDelete: sentMessage.id,
+            deleteAfter: deleteAfter,
+            status: "PENDING"
+          });
+          console.log(`[BroadcastWorker] 🕒 Scheduled message ${sentMessage.id} in ${task.destinationChannelId} for auto-deletion at ${deleteAfter.toISOString()}.`);
+        }
 
         // Move channel title: remove from pending, add to completed
         await Link.findByIdAndUpdate(task.linkId, {
