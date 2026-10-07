@@ -35,6 +35,7 @@ TeleAuto JS Platform v2.0/
 |   |   +-- Link.js                    # [CORE] The core business entity
 |   |   +-- ConversionBatch.js         # Groups links sent to converter bot
 |   |   +-- BroadcastTask.js           # One task = one link to one destination channel
+|   |   +-- DeletionTask.js            # Pending message deletions for auto-delete
 |   +-- modules/
 |       +-- monitoring/
 |       |   +-- MonitoringModule.js    # [CORE] Parses messages, creates Link records
@@ -46,8 +47,9 @@ TeleAuto JS Platform v2.0/
 |       |   +-- ConverterSender.js     # Formats and sends batch to converter bot
 |       |   +-- ConverterListener.js   # Parses bot reply, updates Link records
 |       +-- broadcast/
-|       |   +-- BroadcastTaskCreator.js# Polls for COMPLETED links, creates tasks
-|       |   +-- BroadcastWorker.js     # Processes QUEUED tasks, sends to channels
+|       |   +-- BroadcastTaskCreator.js# Polls for COMPLETED links, creates tasks (handles Channel Linking)
+|       |   +-- BroadcastWorker.js     # Processes QUEUED tasks, sends to channels, schedules AutoDeletion
+|       |   +-- DeletionWorker.js      # Polls for due DeletionTasks, deletes messages
 |       +-- media/
 |       |   +-- MediaDownloader.js     # [CORE] Sequential media download poller
 |       |   +-- MediaCleanupWorker.js  # FIFO cleanup when media exceeds thresholds
@@ -75,7 +77,8 @@ When you run `npm start`, this is the **exact boot order**:
 5. BatchBuilder.start()                 Start background worker (every 15s)
 6. BroadcastTaskCreator.start()         Start background worker (every 15s)
 7. BroadcastWorker.start()              Start background worker (every 15s)
-8. MediaCleanupWorker.start()           Start background worker (every 5 min)
+8. DeletionWorker.start()               Start background worker (every X mins)
+9. MediaCleanupWorker.start()           Start background worker (every 5 min)
 ```
 
 > IMPORTANT: Workers only start AFTER history sync completes. This prevents the
@@ -275,6 +278,30 @@ HistorySyncModule.syncAll()
 
 ---
 
+### Stage 7 - AutoDeletion (Runs Periodically)
+
+```
+BroadcastWorker (on successful broadcast)
+  1. Checks destination channel config for autoDeletionAfterHours
+  2. If present and > 0 => creates DeletionTask with deleteAfter = now + hours
+  
+DeletionWorker (polling every autoDeletionCheckIntervalMinutes)
+  3. Query DB: find DeletionTasks where status="PENDING" AND deleteAfter <= now
+  4. For each task:
+       ClientManager.getClient(broadcasterAccountId)
+       client.deleteMessages(destinationChannelId, [messageIdToDelete], { revoke: true })
+  5. On SUCCESS => task.status = "COMPLETED"
+  6. On FAILURE => task.status = "FAILED", task.errorMessage = error.message
+```
+
+| Goal | File to Edit |
+|------|-------------|
+| Change deletion checking interval | src/config/config.json -> autoDeletionCheckIntervalMinutes |
+| Enable/Disable deletion per channel | src/config/destination-channels.json -> autoDeletionAfterHours |
+| Change deletion API call logic | src/modules/broadcast/DeletionWorker.js |
+
+---
+
 ## 4. The Link Document - The Core Entity
 
 Every link extracted from a source channel message gets its own Link document in MongoDB.
@@ -327,6 +354,7 @@ A Link is NEVER deleted. It transitions through statuses over its lifetime.
 | historySyncEnabled | Boolean | Master switch for history sync on startup |
 | historySyncDefaultLimit | Number | Message fetch limit for channels with no specific limit set |
 | mediaDownloadEnabled | Boolean | Master switch for media downloading |
+| autoDeletionCheckIntervalMinutes | Number | How often DeletionWorker checks for due deletions (default: 60) |
 
 ### src/config/source-channels.json (Per-Channel Settings)
 
@@ -339,6 +367,18 @@ A Link is NEVER deleted. It transitions through statuses over its lifetime.
 | historySyncEnabled | Boolean | Enable or disable history sync for this specific channel |
 | historySyncLimit | Number | Max messages to fetch for this channel on each startup |
 | mediaDownloadEnabled | Boolean | Enable or disable media download for this specific channel |
+| broadcastTo | String[] | Optional array of destination channel IDs. If present, links from this source ONLY broadcast to these destinations. |
+
+### src/config/destination-channels.json (Per-Channel Settings)
+
+| Key | Type | Description |
+|-----|------|-------------|
+| telegramChannelId | String | The channel Telegram ID (with -100 prefix) |
+| telegramChannelUsername | String | The public username if the channel is public |
+| title | String | Human-readable name used in logs |
+| ownerAccountId | String | accountId from accounts.json that broadcasts to this channel |
+| channelCategoryOrNiche | String | Optional niche label for organizational purposes |
+| autoDeletionAfterHours | Number/False | If set to a number, successfully broadcasted messages will be deleted after this many hours. |
 
 ---
 

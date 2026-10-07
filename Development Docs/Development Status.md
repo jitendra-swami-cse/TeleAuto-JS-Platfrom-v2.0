@@ -1,4 +1,4 @@
-﻿Edited package.json
+Edited package.json
 
 I noticed your `npm start` command just showed the help menu and exited. That happened because our CLI tool requires the `start` argument (i.e. `node src/index.js start`). I just quickly updated your `package.json` so that simply typing `npm start` will automatically run it correctly!
 
@@ -131,11 +131,14 @@ Ans - Yes do this.
 - **Per-Channel Limit:** `historySyncLimit` on each channel overrides the global `historySyncDefaultLimit` from `config.json`.
 - **Code Reuse:** All historical messages flow through the exact same `MonitoringModule.processMessage()` function as live messages — zero duplicate logic.
 
+### Phase 7: Advanced Broadcasting Features (Completed)
+
+- **Feature 1 - Channel Linking:** Source channels can specify a `broadcastTo` array of destination channel IDs. `BroadcastTaskCreator` only creates tasks for those matched channels. If the array contains invalid IDs, it creates a dummy `CONFIG_ERROR` task to make the failure visible in the database.
+- **Feature 2 - AutoDeletion:** Destination channels can configure `autoDeletionAfterHours`. `BroadcastWorker` instantly schedules a `DeletionTask` upon successful broadcast. The new `DeletionWorker` runs periodically to execute deletions via the Telegram API, marking tasks as `FAILED` with an error message if Telegram rejects the deletion.
+
 ### Documentation (Completed)
 
-- **Platform Architecture & Developer Reference:** Comprehensive developer guide with the full directory map, 8-step startup sequence, complete 6-stage message lifecycle with arrow-flow diagrams and 'Files to Edit' tables per stage, Link document field reference with all status enums, config key reference, 7 common how-to scenarios, and 6 architectural rules that must never be violated.
-- **Advanced Broadcasting Features Design:** Detailed design specification for two upcoming features:
-  - **Feature 1 - Channel Linking:** `broadcastTo` array on source channels restricts which destination channels receive links from that source. Config-only change, zero new files.
-  - **Feature 2 - Broadcasting Rules:** `broadcastRules` object on destination channels supports `maxPerHour`, `maxPerDay`, `minGapMinutes`, `duringTime`, `afterTime`, `beforeTime`, and `timezone` for fine-grained broadcast scheduling.
+- **Platform Architecture & Developer Reference:** Comprehensive developer guide with the full directory map, 9-step startup sequence, complete 7-stage message lifecycle (including AutoDeletion) with arrow-flow diagrams and 'Files to Edit' tables, Link document field reference, config key reference, and architectural rules.
+- **Advanced Broadcasting Features Design:** Initial design specs that guided the implementation of Channel Linking and Broadcasting Rules (rules pending).
 
 <!-- ----------------------------------------------------------------- -->
