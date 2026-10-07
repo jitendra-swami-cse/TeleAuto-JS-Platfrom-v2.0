@@ -71,13 +71,32 @@ class BroadcastTaskCreator {
         allowedDestinationChannels = destinationChannels.filter(dest =>
           sourceChannelConfig.broadcastTo.includes(dest.telegramChannelId)
         );
+        const niche = sourceChannelConfig.channelCategoryOrNiche || 'not given';
+        console.log(
+          `[BroadcastTaskCreator] 🔗 Channel Linking active for [${sourceChannelConfig.title || link.sourceChannelId}] ` +
+          `(niche: ${niche}): routing to ${allowedDestinationChannels.length}/${destinationChannels.length} destination(s).`
+        );
       }
 
       if (allowedDestinationChannels.length === 0) {
-         console.log(`[BroadcastTaskCreator] No allowed destination channels for Link ${link._id} (source ${link.sourceChannelId}). Marking broadcast as COMPLETED.`);
-         link.broadcastStatus = 'COMPLETED';
-         await link.save();
-         continue;
+        console.warn(
+          `[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [${link.sourceChannelId}]. ` +
+          `Check the broadcastTo list in source-channels.json. Marking Link ${link._id} as FAILED.`
+        );
+        
+        // Create a dummy task so the failure is visible in the database
+        await BroadcastTask.create({
+          linkId: link._id,
+          destinationChannelId: 'CONFIG_ERROR',
+          broadcasterAccountId: 'SYSTEM',
+          status: 'FAILED',
+          errorMessage: 'No matching destination channels found. Check broadcastTo configuration (ensure IDs are quoted strings).'
+        });
+
+        link.broadcastStatus = 'FAILED';
+        link.broadcastingFailedOnChannels = ['CONFIG_ERROR'];
+        await link.save();
+        continue;
       }
 
       const tasksToCreate = [];

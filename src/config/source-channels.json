@@ -1,13 +1,24 @@
 [
   {
     "telegramChannelId": "-1004324690702",
-    "telegramChannelUsername": "For_ac_01",
-    "title": "For_ac_01",
+    "telegramChannelUsername": "For Dest 5 n 6",
+    "title": "For Dest 5 n 6",
     "ownerAccountId": "acc001",
-    "historySyncEnabled": true,
+    "historySyncEnabled": false,
     "historySyncLimit": 200,
     "mediaDownloadEnabled": true,
     "channelCategoryOrNiche": "not given",
-    "broadcastTo": []
+    "broadcastTo": ["-1002033559541", "-1002131370428"]
+  },
+  {
+    "telegramChannelId": "-1004309094068",
+    "telegramChannelUsername": "Dest 1 n 3",
+    "title": "Dest 1 n 3",
+    "ownerAccountId": "acc001",
+    "historySyncEnabled": false,
+    "historySyncLimit": 200,
+    "mediaDownloadEnabled": true,
+    "channelCategoryOrNiche": "not given",
+    "broadcastTo": ["-1002052812178", "-1002109211628"]
   }
 ]

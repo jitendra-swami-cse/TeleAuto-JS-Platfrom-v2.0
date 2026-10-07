@@ -129,3 +129,127 @@ Whenever you're ready to start building the next phase (either the **Interactive
 example 1 - adding channel linking from source channels to destination channels means each source channel have the configuration that link from this channel should be broadasted which channels example sourceChannel_3 have config that the links extracted from this channel should be broadcasted to this destinationChannel_1 and destinationChannel_4 and destinationChannel_7 so teleauto will broadcast a link extracted and converted to these 3 channels only.
 example 2 - Like a broadcasting rules setter module by which broadcasting worker of teleAuto can decide when to broadcast a message on particular channel this must be happens after broadcasting task creation, like each source channel have some configured limitations like maxPerHour, maxPerDay, duringTime: 4pm to 6pm only, afterTime: after 4pm only.
 create a deteailed doument of these suggestions. -->
+
+<!-- --------------------------- -->
+
+I think there is a bug When i accidentally wrote [source-channels.json#L21-21](textBlock;file:///d%3A/JITU/Personnal%20Backup/Ideas%20and%20projects/TeleAuto%20JS/TeleAuto%20JS%20Platfrom%20v2.0/src/config/source-channels.json#L21-21) as "broadcastTo": [-1002052812178, -1002109211628] in that case i know message can't broadcasted on channels. There must be broadcasting tasks in database are stated status as failed and a property having the error message but i have chacked using MongoDB Compass there are no broadcasting tasks in database. the output of console is as below
+PS D:\JITU\Personnal Backup\Ideas and projects\TeleAuto JS\TeleAuto JS Platfrom v2.0> npm start
+
+> teleauto-platform@1.0.0 start
+> node src/index.js start
+
+Starting TeleAuto Platform...
+[ConfigManager] Configuration loaded.
+[DatabaseManager] Connected to MongoDB successfully.
+[2026-10-07T11:38:15.440] [INFO] - [Running gramJS version 2.26.21]
+[ClientManager] Connecting account acc001 (918949972852)...
+[2026-10-07T11:38:15.443] [INFO] - [Connecting to 91.108.56.184:80/TCPFull...]
+[2026-10-07T11:38:15.537] [INFO] - [Connection to 91.108.56.184:80/TCPFull complete!]
+[2026-10-07T11:38:15.538] [INFO] - [Using LAYER 198 for initial connect]
+[ClientManager] Account acc001 connected successfully.
+[ListenerManager] Attaching core listeners for account acc001...
+[ListenerManager] Listeners attached for account acc001.
+TeleAuto Platform started successfully.
+Total 1 Connected Accounts:
+
+[HistorySync] 🔄 Starting Phase 6: History Sync...
+[HistorySync] ⏭️ Global history sync is disabled in config.json. Skipping.
+[BatchBuilder] 🔄 Started polling for pending links every 15 seconds.
+[BroadcastTaskCreator] Started polling for COMPLETED links every 15 seconds.
+[BroadcastWorker] Started polling for QUEUED tasks every 15 seconds.
+[MediaCleanupWorker] Started. Checking every 5 minutes.
+[BatchBuilder] 🔄 Pending links are less than batch size. 0/10
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+
+[MonitoringModule][Account: acc001] 📩 New Message Detected from [Dest 1 n 3]!
+[MonitoringModule] Message 52 cached to database.
+[MonitoringModule] Message 53 cached to database.
+[MonitoringModule] Message 55 cached to database.
+[MonitoringModule] Message 54 cached to database.
+[MonitoringModule] Message 58 cached to database.
+[MonitoringModule] Message 59 cached to database.
+[MonitoringModule] Message 60 cached to database.
+[MonitoringModule] Message 61 cached to database.
+[MonitoringModule] Message 56 cached to database.
+[MonitoringModule] ✅ Link created: terasharefile.com/s/1aDU2pnnNSJbGD5R4044XMg (media: download disabled globally)
+
+---
+
+## [MonitoringModule] ✅ Link created: terasharefile.com/s/1Q2hOHSCNwGUFnBu4cojHMg (media: download disabled globally)
+
+## [MonitoringModule] ✅ Link created: terasharefile.com/s/119xBw_8e-LQ33Z90Nj7mZQ (media: download disabled globally)
+
+## [MonitoringModule] ✅ Link created: terasharefile.com/s/1kCrWoWXj1Nhjaofyf9tRKA (media: download disabled globally)
+
+## [MonitoringModule] ✅ Link created: terasharefile.com/s/1cBal6QSjwipXQxzHBjpk-g (media: download disabled globally)
+
+## [MonitoringModule] ✅ Link created: terasharefile.com/s/12zaKMrPRihHvxw2uF3NK2w (media: download disabled globally)
+
+## [MonitoringModule] ✅ Link created: terasharefile.com/s/1GAM5opViyLgizopems4NEA (media: download disabled globally)
+
+## [MonitoringModule] ✅ Link created: terasharefile.com/s/1lXT-l-4VXe0jlS8G51wJgg (media: download disabled globally)
+
+[MonitoringModule] Message 57 cached to database.
+[MonitoringModule] ✅ Link created: terasharefile.com/s/1zpM2ClOrbeT2I-URrnG4Ug (media: download disabled globally)
+[MonitoringModule] ✅ Link created: terasharefile.com/s/1ErV9YFdw0E53nXMecyWh0w (media: download disabled globally)
+
+---
+
+## [MonitoringModule] ✅ Link created: terasharefile.com/s/1JdIGHlkDAt4ymS-6BB6DgQ (media: download disabled globally)
+
+[BatchBuilder] 📦 Created new conversion batch 6ac5e1eddc7d173dc2040909
+[ConverterSender] 📤 Sending batch 6ac5e1eddc7d173dc2040909 (10 links) to @LinkConvertTeraAbot...
+[ConverterSender] ⏳ Batch sent successfully! Waiting for bot response...
+[BatchBuilder] 🔄 Active batch already processing. 6ac5e1eddc7d173dc2040909
+
+[ConverterListener] 📥 Received response from Converter Bot (@LinkConvertTeraAbot)
+[ConverterListener] ✅ Batch 6ac5e1eddc7d173dc2040909 processed!
+[ConverterListener] 📊 Stats: 10 converted, 0 failed.
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408ed...
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408ed as COMPLETED to prevent retry loop.
+[BatchBuilder] 🔄 Pending links are less than batch size. 1/10
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408ef...  
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408ef as COMPLETED to prevent retry loop.
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408f1...  
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408f1 as COMPLETED to prevent retry loop.
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408f3...  
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408f3 as COMPLETED to prevent retry loop.
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408f5...  
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408f5 as COMPLETED to prevent retry loop.
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408f7...
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408f7 as COMPLETED to prevent retry loop.
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408f9...  
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408f9 as COMPLETED to prevent retry loop.
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408fb...  
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408fb as COMPLETED to prevent retry loop.
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408fd...  
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408fd as COMPLETED to prevent retry loop.
+[BroadcastTaskCreator] Creating separate broadcast tasks for Link 6ac5e1eadc7d173dc20408ff...  
+[BroadcastTaskCreator] 🔗 Channel Linking active for [Dest 1 n 3] (niche: not given): routing to 0/1 destination(s).
+[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [-1004309094068]. Cheeck the broadcastTo list in source-channels.json. Marking Link 6ac5e1eadc7d173dc20408ff as COMPLETED to prevent retry loop.
