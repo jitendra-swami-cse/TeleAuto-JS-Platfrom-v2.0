@@ -78,6 +78,19 @@ class BroadcastTaskCreator {
         );
       }
 
+      // Feature: Destination Link Restrictions
+      let providerFilteredChannels = [];
+      for (const dest of allowedDestinationChannels) {
+        if (dest.allowedProviders && dest.allowedProviders.length > 0) {
+          if (!dest.allowedProviders.includes(link.providerId)) {
+            console.log(`[BroadcastTaskCreator] 🚫 Skipping ${dest.title || dest.telegramChannelId} for Link ${link._id} (provider '${link.providerId}' not allowed).`);
+            continue;
+          }
+        }
+        providerFilteredChannels.push(dest);
+      }
+      allowedDestinationChannels = providerFilteredChannels;
+
       if (allowedDestinationChannels.length === 0) {
         console.warn(
           `[BroadcastTaskCreator] ⚠️ No matching destination channels found for source [${link.sourceChannelId}]. ` +
