@@ -17,10 +17,8 @@ class EventRouter {
       }
       
       // 2. Converter Bot Routing
-      const botUsername = ConfigManager.appConfig.converterBotUsername;
-      // We only process if we have a configured bot and it's a private chat
-      if (botUsername && message.isPrivate) {
-         ConverterListener.processMessage(message, accountId, botUsername);
+      if (message.isPrivate && ConfigManager.appConfig.converters) {
+         ConverterListener.processMessage(message, accountId);
       }
       
       // Future: Broadcast Handler routing will go here

@@ -1,19 +1,22 @@
 const ConversionBatch = require("../../models/ConversionBatch");
 const Link = require("../../models/Link");
 
-class ConverterListener {
-  async processMessage(message, accountId, botUsername) {
-    try {
-      // 1. Verify this message actually came from the converter bot
-      const sender = await message.getSender();
-      const cleanBotUsername = botUsername.replace("@", "");
+const ConfigManager = require("../../core/config/ConfigManager");
 
-      if (
-        !sender ||
-        (sender.username &&
-          sender.username.toLowerCase() !== cleanBotUsername.toLowerCase())
-      ) {
-        return; // Not from our configured bot
+class ConverterListener {
+  async processMessage(message, accountId) {
+    try {
+      // 1. Verify this message actually came from one of the converter bots
+      const sender = await message.getSender();
+      if (!sender || !sender.username) return;
+
+      const senderUsername = sender.username.toLowerCase();
+      const matchedConverter = ConfigManager.appConfig.converters.find(
+        c => c.botUsername.replace("@", "").toLowerCase() === senderUsername
+      );
+
+      if (!matchedConverter) {
+        return; // Not from our configured bots
       }
 
       console.log(

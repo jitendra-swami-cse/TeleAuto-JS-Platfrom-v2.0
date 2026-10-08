@@ -52,19 +52,25 @@ class BatchBuilder {
 
     const batchSize = ConfigManager.appConfig.batchSize || 10;
 
-    // 2. Batch Size Lock: Do not send partial batches
-    const pendingCount = await Link.countDocuments({
-      conversionStatus: "PENDING",
-    });
-    if (pendingCount < batchSize) {
-      console.log(
-        `[BatchBuilder] 🔄 Pending links are less than batch size. ${pendingCount}/${batchSize}`,
-      );
+    // 2. Find a provider that has enough pending links
+    const providerCounts = await Link.aggregate([
+      { $match: { conversionStatus: "PENDING" } },
+      { $group: { _id: "$providerId", count: { $sum: 1 } } },
+      { $match: { count: { $gte: batchSize } } }
+    ]);
+
+    if (providerCounts.length === 0) {
+      // console.log(`[BatchBuilder] 🔄 No provider has enough pending links (needs ${batchSize}).`);
       return;
     }
 
-    // 3. Query Oldest Pending Links (FIFO)
-    const pendingLinks = await Link.find({ conversionStatus: "PENDING" })
+    const targetProviderId = providerCounts[0]._id;
+
+    // 3. Query Oldest Pending Links (FIFO) for the matched provider
+    const pendingLinks = await Link.find({ 
+      conversionStatus: "PENDING",
+      providerId: targetProviderId
+    })
       .sort({ createdAt: 1 })
       .limit(batchSize);
 
@@ -80,6 +86,7 @@ class BatchBuilder {
 
     // 5. Create Conversion Batch Record
     const batch = await ConversionBatch.create({
+      providerId: targetProviderId,
       status: "CREATED",
       linkIds: linkIds,
     });

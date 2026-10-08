@@ -83,6 +83,25 @@ class MonitoringModule {
       const normalizedUrl = URLNormalizer.normalize(rawUrl);
       if (!normalizedUrl) continue;
 
+      // Identify provider based on config
+      let matchedProviderId = null;
+      if (ConfigManager.appConfig.converters) {
+        for (const converter of ConfigManager.appConfig.converters) {
+          const isMatch = converter.matchKeywords.some(keyword => 
+            rawUrl.toLowerCase().includes(keyword.toLowerCase())
+          );
+          if (isMatch) {
+            matchedProviderId = converter.providerId;
+            break;
+          }
+        }
+      }
+
+      if (!matchedProviderId) {
+        console.log(`[MonitoringModule] ⏭️ Link ignored (does not match any configured provider): ${rawUrl}`);
+        continue;
+      }
+
       try {
         await Link.create({
           sourceChannelId: sourceChannelId,
@@ -90,6 +109,7 @@ class MonitoringModule {
           telegramMessageId: message.id,
           originalUrl: rawUrl,
           normalizedUrl: normalizedUrl,
+          providerId: matchedProviderId,
           mediaId: mediaId,
         });
         console.log(

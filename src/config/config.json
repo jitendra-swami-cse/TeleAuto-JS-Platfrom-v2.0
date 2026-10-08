@@ -4,9 +4,22 @@
   "conversionTimeoutSeconds": 300,
   "messageCacheLimit": 1000,
   "logRetentionDays": 30,
-  "converterBotUsername": "@LinkConvertTeraAbot",
   "historySyncEnabled": false,
   "historySyncDefaultLimit": 100,
   "mediaDownloadEnabled": false,
-  "autoDeletionCheckIntervalMinutes": 60
+  "autoDeletionCheckIntervalMinutes": 60,
+  "converters": [
+    {
+      "providerId": "terabox",
+      "matchKeywords": ["tera", "1024tera"],
+      "botUsername": "@LinkConvertTeraAbot",
+      "accountId": "acc001"
+    },
+    {
+      "providerId": "diskwala",
+      "matchKeywords": ["diskwala"],
+      "botUsername": "@DW2DW_LinkConverterBot",
+      "accountId": "acc001"
+    }
+  ]
 }

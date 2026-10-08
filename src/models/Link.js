@@ -6,6 +6,7 @@ const linkSchema = new mongoose.Schema({
   telegramMessageId: { type: Number, required: true },
   originalUrl: { type: String, required: true },
   normalizedUrl: { type: String, required: true, unique: true },
+  providerId: { type: String, required: true },
   convertedUrl: { type: String },
   mediaId: { type: String, default: 'noMedia' },
   // mediaId encodes state:

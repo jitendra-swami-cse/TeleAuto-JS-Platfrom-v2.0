@@ -5,33 +5,33 @@ const Link = require("../../models/Link");
 
 class ConverterSender {
   async sendBatch(batch, links) {
-    // We only use accounts configured for conversion (or default to the first one)
-    const accounts = ConfigManager.getEnabledAccounts().filter(
-      (acc) => acc.conversionEnabled !== false,
+    const providerConfig = ConfigManager.appConfig.converters?.find(
+      c => c.providerId === batch.providerId
     );
-    if (accounts.length === 0) {
-      console.error(
-        "[ConverterSender] 🛑 No accounts available for conversion!",
-      );
+
+    if (!providerConfig) {
+      console.error(`[ConverterSender] 🛑 Provider config not found for providerId: ${batch.providerId}`);
+      batch.status = "FAILED_TO_SEND";
+      await batch.save();
+      await Link.updateMany({ _id: { $in: batch.linkIds } }, { $set: { conversionStatus: "FAILED_TO_SEND" } });
       return;
     }
 
-    const account = accounts[0];
+    const account = ConfigManager.getEnabledAccounts().find(a => a._id === providerConfig.accountId);
+    if (!account) {
+      console.error(`[ConverterSender] 🛑 Account ${providerConfig.accountId} not found or not enabled.`);
+      return;
+    }
+
     const client = ClientManager.getClient(account._id);
-
     if (!client) {
-      console.error(
-        `[ConverterSender] 🛑 Client for account ${account._id} not connected.`,
-      );
+      console.error(`[ConverterSender] 🛑 Client for account ${account._id} not connected.`);
       return;
     }
 
-    // You will need to add "converterBotUsername" to src/config/config.json
-    const botUsername = ConfigManager.appConfig.converterBotUsername;
+    const botUsername = providerConfig.botUsername;
     if (!botUsername) {
-      console.error(
-        "[ConverterSender] 🛑 No converterBotUsername specified in config.json!",
-      );
+      console.error(`[ConverterSender] 🛑 botUsername not specified in provider config for ${batch.providerId}!`);
       return;
     }
 
